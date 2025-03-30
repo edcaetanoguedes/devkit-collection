@@ -39,7 +39,7 @@
         <td>
             <a href="https://www.npmjs.com/package/winston">Winston</a>
         </td>
-        <td>log, javascript, teste</td>
+        <td>log, javascript, teste, node.js</td>
         <td>Uma biblioteca de logs para Node.js altamente configurável e flexível, permitindo registrar logs em
             diferentes formatos e destinos. Ele é amplamente utilizado para monitoramento e depuração de aplicações.
         </td>
@@ -48,7 +48,7 @@
         <td>
             <a href="https://github.com/Unitech/pm2">PM2</a>
         </td>
-        <td>log, javascript, teste</td>
+        <td>log, javascript, teste, node.js</td>
         <td>O PM2 (Process Manager 2) é um gerenciador de processos para Node.js, usado para executar, monitorar e
             manter aplicações rodando continuamente. Ele também possui um sistema de logging avançado, permitindo
             registrar e gerenciar logs de aplicações em produção.</td>
