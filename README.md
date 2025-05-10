@@ -1,5 +1,4 @@
-<h1>Index - DevKit Collection <img src="https://img.shields.io/static/v1?label=STATUS&message=1ª VERSÃO&color=GREEN&style=for-the-badge" width="150" height="25" />
-</h1>
+<h1>Index - DevKit Collection</h1>
 
 <img src="https://visitor-badge.laobi.icu/badge?page_id=devkit-collection&" />
 
