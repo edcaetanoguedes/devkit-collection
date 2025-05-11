@@ -1,4 +1,4 @@
-## Extensões VSCode
+## 🧩 Extensões VSCode
 
 - #### Prettier  
   ➤ Formatador de código opinativo que mantém o estilo consistente automaticamente.
