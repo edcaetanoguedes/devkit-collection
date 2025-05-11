@@ -1,3 +1,7 @@
+<img src="https://img.shields.io/static/v1?label=STATUS&message=EM%20CONSTRU%C3%87%C3%83O&color=GREEN&style=for-the-badge" />
+
+<img src="https://visitor-badge.laobi.icu/badge?page_id=devkit-collection" />
+
 ## Catalog of development and productivity tools
 Catálogo de ferramentas de desenvolvimento e produtividade
 
