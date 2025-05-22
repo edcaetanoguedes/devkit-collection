@@ -9,6 +9,9 @@
 - #### Bracket Pair Colorizer 2  
   ➤ Colore pares de colchetes/chaves para facilitar a leitura do código, especialmente em estruturas aninhadas.
 
+- #### Material Icon Theme
+  ➤ personalizar os ícones dos arquivos e pastas no explorador do VS Code, deixando a interface mais visual, organizada e fácil de navegar.
+
 - #### Path Intellisense  
   ➤ Autocompleta caminhos de arquivos no seu projeto enquanto você digita importações.
 
@@ -90,6 +93,7 @@ Copie o bloco inteiro, cole no terminal do **VScode** e tecle `Enter`.
 code --install-extension esbenp.prettier-vscode;
 code --install-extension dbaeumer.vscode-eslint;
 code --install-extension CoenraadS.bracket-pair-colorizer-2;
+code --install-extension PKief.material-icon-theme;
 code --install-extension christian-kohler.path-intellisense;
 code --install-extension formulahendry.auto-rename-tag;
 code --install-extension formulahendry.auto-close-tag;
