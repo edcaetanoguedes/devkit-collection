@@ -66,6 +66,11 @@
   ➤ Integração com bancos de dados SQLite para explorar e executar comandos diretamente do editor.
 
 ---
+- #### Rest Client  
+  ➤ Permite criar arquivos `.http` ou `.rest` e enviar requisições diretamente. Suporta **GET**, **POST**, **PUT**, **DELETE**, **PATCH**, etc. Mostra resposta formatada (JSON, texto, status, headers).
+
+
+---
 
 - #### Markdown All in One  
   ➤ Conjunto completo de melhorias para Markdown: visualização, atalhos, sumário automático, etc.
