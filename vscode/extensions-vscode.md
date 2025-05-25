@@ -114,6 +114,7 @@ code --install-extension ms-toolsai.jupyter;
 code --install-extension ms-python.vscode-pylance;
 code --install-extension mtxr.sqltools;
 code --install-extension alexcvzz.vscode-sqlite;
+code --install-extension humao.rest-client;
 code --install-extension yzhang.markdown-all-in-one;
 code --install-extension shd101wyy.markdown-preview-enhanced;
 code --install-extension eamodio.gitlens;
