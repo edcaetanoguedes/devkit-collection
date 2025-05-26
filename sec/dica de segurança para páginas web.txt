@@ -1,0 +1,13 @@
+# Dica de segurança Web
+
+Troque isso:
+
+<a href="https://linkedin.com" target="_blank">LinkedIn</a>
+
+Por isso:
+
+<a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+
+Noopener: Trava a porta e impede que o site aberto controle sua aba original, evita golpes como phishing (sites falsos que roubam dados).
+
+Noreferrer: Esconde seu endereço. Quando alguém clica no link, o site de destino não fica sabendo de qual página você veio.

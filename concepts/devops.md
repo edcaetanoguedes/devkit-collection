@@ -1,4 +1,4 @@
-#### Principais pilares do DevOps:
+### Principais pilares do DevOps:
 - **Integração Contínua (CI)**
 Desenvolvedores integram frequentemente seu código ao repositório, com testes automáticos para detectar erros rapidamente.
 
