@@ -6,6 +6,7 @@
 Catálogo de ferramentas de desenvolvimento e produtividade
 
 - [Ferramentas para começar o desenvolvimento](./dev/basic.md)
+  - [Comandos git](./dev/comandos-git.md)
 - [Extensões VSCode](./vscode/extensions-vscode.md)
 - Produtividade/Metodologias:
   - [DevOps](./concepts/devops.md)
