@@ -1,0 +1,42 @@
+name: E2E Tests on manager-tasks-backend
+
+on:
+  workflow_dispatch: # permite execução manual na aba "Actions"
+  push:
+    branches: [main] # opcional: dispara testes a cada push na main
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar o repositório da aplicação (manager-tasks-backend)
+        uses: actions/checkout@v4
+        with:
+          repository: edcaetanoguedes/manager-tasks-backend
+          token: ${{ secrets.GH_PERSONAL_TOKEN }}
+          path: backend
+
+      - name: Instalar dependências da aplicação
+        working-directory: backend
+        run: npm install
+
+      - name: Iniciar a aplicação (porta 4000)
+        working-directory: backend
+        run: npm run dev &
+
+      - name: Esperar a aplicação estar disponível
+        run: npx wait-on http://localhost:4000
+
+      - name: Clonar os testes deste repositório
+        uses: actions/checkout@v4
+        with:
+          path: tests
+
+      - name: Instalar dependências dos testes
+        working-directory: tests
+        run: npm install
+
+      - name: Executar os testes Cypress
+        working-directory: tests
+        run: npm run test:cy:backend
