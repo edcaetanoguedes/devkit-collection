@@ -43,6 +43,9 @@
 - #### React Developer Tools  
   ➤ Ferramentas de inspeção de componentes React diretamente no navegador (requer instalação fora do VS Code também).
 
+- #### ES7 React/Redux/GraphQL/React-Native snipp
+  ➤ Forneça trechos de código para React, React Native e Redux em Js/Ts com sintaxe ES7+. Fácil personalização e integração com o Prettier.
+
 - #### Javascript (ES6) code snippets  
   ➤ Coleção de snippets para acelerar a escrita de código moderno JavaScript/ES6.
 
@@ -91,7 +94,7 @@
   ➤ Gera a documentação automaticamente do seu código.
 ---
 
-### Comando para a instalação de todas as extenções
+### Comando para a instalação de todas as extensões
 Copie o bloco inteiro, cole no terminal do **VScode** e tecle `Enter`.
 
 ```
@@ -108,6 +111,7 @@ code --install-extension chrmarti.regex;
 code --install-extension ecmel.vscode-html-css;
 code --install-extension pranaygp.vscode-css-modules;
 code --install-extension mrmlnc.vscode-scss;
+code --install-extension dsznajder.es7-react-js-snippets;
 code --install-extension xabikos.JavaScriptSnippets;
 code --install-extension ms-python.python;
 code --install-extension ms-toolsai.jupyter;
