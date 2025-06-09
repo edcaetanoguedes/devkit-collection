@@ -1,0 +1,20 @@
+# Automatização de testes backend via repositório separado
+name: Trigger E2E Tests (manager-tasks-automated-tests) # identificação da pipeline
+
+on:
+  push: # executa no push
+    branches: # e nas branches a seguir
+      - develop # ou outra branch que você quiser monitorar
+
+jobs:
+  trigger-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger E2E Tests Workflow
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GH_PERSONAL_TOKEN }}" \ # o SECRET está aqui
+            https://api.github.com/repos/USER/REPOSITORIO/actions/workflows/ARQUIVO_PIPELINE.yml/dispatches \
+            -d '{"ref":"main"}'
