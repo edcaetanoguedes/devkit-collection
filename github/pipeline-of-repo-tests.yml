@@ -1,42 +1,50 @@
-name: E2E Tests on manager-tasks-backend
+name: Backend Automated Tests on <NOME-DO-REPOSITORIO-DA-APLICACAO>
 
 on:
   workflow_dispatch: # permite execução manual na aba "Actions"
-  push:
-    branches: [main] # opcional: dispara testes a cada push na main
+  workflow_call:
+    inputs:
+      backend-branch:
+        required: true
+        type: string
+    secrets:
+      GH_PERSONAL_TOKEN: # Secret configurado via Token com permissões
+        required: true
 
 jobs:
-  run-tests:
+  e2e-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar o repositório da aplicação (manager-tasks-backend)
+      - name: Clonar repositório (<TIPO-DE-APLICACAO>) # Personalizável, opções comuns: backend, frontend, etc
         uses: actions/checkout@v4
         with:
-          repository: edcaetanoguedes/manager-tasks-backend
+          repository: <OWNER>/<NOME-DO-REPOSITORIO-DA-APLICACAO>
           token: ${{ secrets.GH_PERSONAL_TOKEN }}
-          path: backend
+          path: <NOME-DO-REPOSITORIO-DA-APLICACAO>
+          ref: ${{ inputs.backend-branch }}
 
-      - name: Instalar dependências da aplicação
-        working-directory: backend
+      - name: Instalar dependências (<TIPO-DE-APLICACAO>)
+        working-directory: <NOME-DO-REPOSITORIO-DA-APLICACAO>
         run: npm install
 
-      - name: Iniciar a aplicação (porta 4000)
-        working-directory: backend
+      - name: Iniciar aplicação na porta 4000 (<TIPO-DE-APLICACAO>)
+        working-directory: <NOME-DO-REPOSITORIO-DA-APLICACAO>
         run: npm run dev &
 
-      - name: Esperar a aplicação estar disponível
+      - name: Esperar a aplicação estar disponível (<TIPO-DE-APLICACAO>)
         run: npx wait-on http://localhost:4000
 
-      - name: Clonar os testes deste repositório
+      - name: Clonar repositório de testes
         uses: actions/checkout@v4
         with:
-          path: tests
+          repository: <OWNER>/<NOME-DO-REPOSITORIO-DE-TESTES>
+          path: <NOME-DO-REPOSITORIO-DE-TESTES>
 
-      - name: Instalar dependências dos testes
-        working-directory: tests
+      - name: Instalar dependências (tests)
+        working-directory: <NOME-DO-REPOSITORIO-DE-TESTES>
         run: npm install
 
-      - name: Executar os testes Cypress
-        working-directory: tests
-        run: npm run test:cy:backend
+      - name: Executar testes
+        working-directory: <NOME-DO-REPOSITORIO-DE-TESTES>
+        run: npm run test:cy:backend # Comando para rodar os testes

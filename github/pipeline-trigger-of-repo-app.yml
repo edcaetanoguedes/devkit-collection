@@ -1,20 +1,39 @@
-# Automatização de testes backend via repositório separado
-name: Trigger E2E Tests (manager-tasks-automated-tests) # identificação da pipeline
+name: Trigger Automated Tests (<NOME-DO-REPOSITORIO-DE-TESTES>)
 
 on:
-  push: # executa no push
-    branches: # e nas branches a seguir
-      - develop # ou outra branch que você quiser monitorar
+  push:
+    branches:
+      - develop
 
 jobs:
-  trigger-tests:
+  call-tests-workflow:
+    uses: <OWNER>/<NOME-DO-REPOSITORIO-DE-TESTES>/.github/workflows/<NOME-DO-PIPELINE>.yml@main
+    secrets:
+      GH_PERSONAL_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+    with:
+      backend-branch: develop
+
+  merge-develop-to-main:
+    needs: call-tests-workflow # Define que deve aguardar o job de testes
     runs-on: ubuntu-latest
+    if: success() # Só roda se os testes passarem
+
+    permissions: # permissões necessárias abaixo
+      contents: write
+      pull-requests: write
 
     steps:
-      - name: Trigger E2E Tests Workflow
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Define que faça o clone completo do repositório, com todo o histórico de commits.
+
+      - name: Merge develop into main
         run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GH_PERSONAL_TOKEN }}" \ # o SECRET está aqui
-            https://api.github.com/repos/USER/REPOSITORIO/actions/workflows/ARQUIVO_PIPELINE.yml/dispatches \
-            -d '{"ref":"main"}'
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+
+          git fetch origin
+          git checkout main
+          git merge origin/develop --no-ff -m "Auto-merge develop into main [skip ci]"
+          git push origin main
