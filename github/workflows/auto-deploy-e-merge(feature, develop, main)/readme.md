@@ -6,7 +6,9 @@ Uma pipeline é uma sequência automatizada de etapas para construir, testar, e 
 ## Contexto
 
 Dois repositórios, um da aplicação (**RepoApp**) e outro de testes (**RepoTests**).  
-**RepoApp** executará os testes contidos em **RepoTests** assim que receber um push na `branch develop`, e então o `merge` automático, caso passe nos testes.
+**RepoApp** executará os testes contidos em **RepoTests** assim que receber um push nas branches  `feature/**` ou `develop`.  
+
+Após sucesso nos testes, ocorre o `merge` automático para a próxima branch (`feature/**` -> `develop`, `develop` -> `main`). No caso de `feature/**`, a branch é deletada.
 
 #### Observação
 O repositório **RepoApp** é privado, **RepoTests** é público.
@@ -18,10 +20,11 @@ O repositório **RepoApp** é privado, **RepoTests** é público.
 - Criação das pipelines com o secret.
   - **RepoApp** reutiliza o workflow em **RepoTests**.
   - **RepoTests** executa os testes.
-  - **RepoApp** faz o `Merge` automático do push de `develop` -> `main`, caso passe nos testes.
+  - **RepoApp** faz o `Merge` automático das branches, caso os testes terminem em sucesso.
 
 ## Explicação detalhada  
 
+> #
 > ### Permissões necessárias  
 >
 > - Criação de Token  
@@ -36,7 +39,8 @@ O repositório **RepoApp** é privado, **RepoTests** é público.
 >> No campo nome preencha com algo que identifique o propósito.   
 >> Tenha em mente que serão necessárias as permissões **repo** e **workflow**.  
 >> Ao gerar o token, **COPIE**, pois este só aparecerá uma vez. Será usado futuramente.  
->
+
+> #
 > ### Configuração de Secret (ex: **GH_PERSONAL_TOKEN**)
 >
 >> Em ambos os repositórios, faça:  
@@ -47,7 +51,8 @@ O repositório **RepoApp** é privado, **RepoTests** é público.
 > Faça a config do secret nos 2 repositórios.  
 > 
 > **Obs:** O token `${{ secrets.GH_PERSONAL_TOKEN }}` funciona se os dois repositórios estiverem no mesmo GitHub org e públicos ou com permissão cruzada.  
->
+
+> #
 > ### **Objetivo**: execução dos testes de **RepoTests** em **RepoApp**
 > Execute em ambos os repositórios `npm install --save-dev wait-on`, recurso para aguardar recursos rodarem (exemplo: http://localhost:4000).  
 > 
@@ -67,7 +72,8 @@ O repositório **RepoApp** é privado, **RepoTests** é público.
 >> Execute `git add .github/workflows/pipeline.yml`  
 >> Execute `git commit -m "chore(pipeline): Adiciona workflow de testes E2E do backend"`  
 >> Execute `git push origin <BRANCH>`, a branch pode ser **main**, **develop**, etc.  
->
+
+> #
 >  ## **Obs:**
 > Você só precisa configurar um secret se for necessário clonar outro repositório privado.  
 > Se os dois repositórios forem públicos, o secrets.GITHUB_TOKEN padrão do GitHub já é suficiente para clonar outro repositório da mesma conta/organização.  

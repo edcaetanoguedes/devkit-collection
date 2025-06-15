@@ -10,3 +10,5 @@ Catálogo de ferramentas de desenvolvimento e produtividade
 - [Extensões VSCode](./vscode/extensions-vscode.md)
 - Produtividade/Metodologias:
   - [DevOps](./concepts/devops.md)
+  - Pipeline/Workflows:
+    - [Modelo: repositório de testes separado da aplicação](./github/workflows/auto-deploy-e-merge(feature,%20develop,%20main)/)

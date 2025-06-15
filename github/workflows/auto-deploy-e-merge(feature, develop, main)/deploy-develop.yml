@@ -1,0 +1,90 @@
+# Contexto: Repositório de aplicação Backend PRIVADO
+name: Deploy develop
+
+on:
+  push: # Permitido em pushes
+    branches: # Definir em que branches é permitido
+      - develop
+  workflow_run: # Handle aguardando a chamada de outro workflow
+    workflows: ["Deploy feature"] # Workflows que podem chamar este workflow
+    # O tipo de evento que deve ser escutado: quando o outro workflow terminar (com sucesso ou falha)
+    types:
+      - completed
+
+jobs:
+  pos-merge-feature:
+    name: Verificando se Deploy anterior teve sucesso
+    # Só roda se o workflow que chamou teve sucesso
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verificar Deploy Feature
+        run: |
+          echo "Status: ${{github.event.workflow_run.conclusion}}"
+
+  call-tests-backend-workflow:
+    uses: <OWNER>/<REPOSITORY-NAME>/.github/workflows/<FILENAME-WORKFLOW>.yml@main
+    secrets:
+      GH_PERSONAL_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+    with:
+      # Atribui a branch atual como param p/ o workflow externo de testes
+      # Assim o workflow externo testa a branch correta, no caso develop
+
+      backend-branch: develop
+
+  merge-develop-to-main:
+    name: Merge develop para main
+    # Deve aguardar os jobs: "rodar testes"
+    needs: [call-tests-backend-workflow]
+    runs-on: ubuntu-latest
+    if: success() # Só roda se os jobs forem bem sucedidos
+
+
+    permissions:
+      # Permite que o workflow faça push, crie/delete branches, crie tags, altere conteúdo do repositório
+      contents: write
+      # Permite criar/editar/fechar pull requests, adicionar comentários, reviewers, label, etc
+      pull-requests: write
+
+    steps:
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Merge develop into main
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+
+          git fetch origin main
+          git checkout main
+          git merge origin/develop --no-ff -m "Auto-merge develop into main [skip ci]"
+          git push origin main
+  
+  merge-main-to-develop:
+    name: Merge main para develop
+    # Deve aguardar o job finalizar
+    needs: merge-develop-to-main
+    runs-on: ubuntu-latest
+    if: success() # Só roda se o job needs forem bem sucedidos
+
+    permissions:
+      contents: write # Idem acima
+      pull-requests: write # Idem acima
+
+    steps:
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Merge main into develop
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+
+          git fetch origin develop
+          git checkout develop
+          git merge origin/main --no-ff -m "Auto-merge main into develop [skip ci]"
+          git push origin develop

@@ -1,0 +1,69 @@
+# Contexto: Repositório de aplicação Backend PRIVADO
+name: Deploy feature
+
+on: # Em que ocasiões é permitida a execução do workflow
+  push: # Permitido em pushes
+    branches: # Definir em que branches é permitido
+      - 'feature/**' # Permite branches de 1º e 2º nível (ex: feature/backend/login)
+
+jobs:
+  get-current-branch:
+    name: Obter nome da branch feature/**
+    runs-on: ubuntu-latest
+
+    outputs: # Exporta valores como output do job
+      current-branch: ${{ steps.vars.outputs.BRANCH }} # Saída da variável "backend-branch"
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Permite acessar todas as branches e histórico de commits
+
+      - name: Obter nome da branch atual
+        id: vars
+        run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT # Atribui a branch atual na variável
+
+      - name: Mostrar nome da branch
+        run: |
+          echo "Branch atual: ${{ steps.vars.outputs.BRANCH }}"
+
+  call-tests-backend-workflow:
+    uses: <OWNER>/<REPOSITORY-NAME>/.github/workflows/<FILENAME-WORKFLOW>.yml@<BRANCH>
+    secrets:
+      GH_PERSONAL_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+    needs: get-current-branch # Precisa esperar pelo job setado
+    with:
+      # Atribui a branch atual (armazenada em variável) como param p/ o workflow externo de testes
+      # Assim o workflow externo poderá testar a branch correta, no caso feature/**
+      backend-branch: ${{ needs.get-current-branch.outputs.current-branch }}
+  
+  merge-feature-to-develop:
+    name: Merge feature para develop
+    # Deve aguardar os jobs: "obter a branch atual" e "rodar testes"
+    needs: [get-current-branch, call-tests-backend-workflow]
+    runs-on: ubuntu-latest
+    if: success() # Só roda se os jobs forem bem sucedidos
+
+    permissions:
+      # Permite que o workflow faça push, crie/delete branches, crie tags, altere conteúdo do repositório
+      contents: write
+      # Permite criar/editar/fechar pull requests, adicionar comentários, reviewers, label, etc
+      pull-requests: write
+
+    steps:
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configurando o Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+      - name: Merge ${{ needs.get-current-branch.outputs.backend-branch }} into develop
+        run: |
+          git fetch origin develop
+          git checkout develop
+          git merge ${{ needs.get-current-branch.outputs.backend-branch }} --no-ff -m "Merge automático da feature para develop [skip ci]"
+          git push origin develop
+          git push origin --delete ${{ needs.get-current-branch.outputs.backend-branch }}
