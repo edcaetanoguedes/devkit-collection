@@ -3,6 +3,9 @@
 ### Configurando o VSCode como editor git
 `git config --global core-editor "code --wait"`
 
+### Dar pull em uma branch X sem sair da branch Y
+`git fetch origin master:master`
+
 ### Comparação de branches/commits
 
 - Histórico de todas as branches em forma de grafo  
