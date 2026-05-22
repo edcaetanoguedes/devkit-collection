@@ -29,6 +29,11 @@
   Via powershell `git config --global user.name "Seu Nome"`
   Via powershell `git config --global user.email "seu@email.com"`
 
+- #### Github CLI
+  Via powershell `winget install --id GitHub.cli`
+  Via powershell `gh --version`
+  Via powershell `gh auth login`
+
 
 #### Testes
 - ##### Postman
