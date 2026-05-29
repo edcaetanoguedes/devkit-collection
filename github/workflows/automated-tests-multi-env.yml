@@ -1,0 +1,187 @@
+name: Automated Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      BRANCH:
+        description: Branch
+        required: true
+        default: main
+        type: choice
+        options:
+          - main
+          - develop
+          - staging
+      ENVIRONMENT:
+        description: Environment
+        required: true
+        default: QA
+        type: choice
+        options:
+          - QA
+          - UAT
+      LOCATION:
+        description: Location
+        required: true
+        default: PD
+        type: choice
+        options:
+          - PD
+          - CHILE
+          - BRL
+          - MX
+          - AR
+          - ES
+      TRIBE:
+        description: Tribe
+        required: true
+        default: corporate
+        type: choice
+        options:
+          - tribe1
+          - tribe2
+      TAGS:
+        description: Tags
+        required: true
+        type: string
+        options:
+          - "@tag1"
+          - "@tag2"
+  workflow_call:
+    inputs:
+      BRANCH:
+        required: false
+        default: main
+        type: string
+      ENVIRONMENT:
+        required: true
+        type: string
+      LOCATION:
+        required: true
+        type: string
+      TRIBE:
+        required: false
+        default: corporate
+        type: string
+      TAGS:
+        required: true
+        type: string
+
+jobs:
+  Automated-Tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.BRANCH }}
+
+      - name: Installing dependencies
+        run: npm ci
+
+      - name: Resolve runtime variables
+        shell: bash
+        run: |
+          LOCATION="${{ inputs.LOCATION }}"
+          ENVIRONMENT_INPUT="${{ inputs.ENVIRONMENT }}"
+          TAGS_INPUT="${{ inputs.TAGS }}"
+
+          if [ -z "${TAGS_INPUT//[[:space:]]/}" ]; then
+            echo "Input obrigatorio ausente: tags"
+            echo "Informe ao menos uma tag (ex.: @accessGroupManagement)"
+            exit 1
+          fi
+
+          if [ "$ENVIRONMENT_INPUT" = "QA" ] && [ "$LOCATION" = "PD" ]; then
+            CYPRESS_ENVIRONMENT="qa-lz"
+          elif [ "$ENVIRONMENT_INPUT" = "UAT" ] && [ "$LOCATION" = "BRL" ]; then
+            CYPRESS_ENVIRONMENT="uat-lz"
+          elif [ "$ENVIRONMENT_INPUT" = "UAT" ] && [ "$LOCATION" = "CHILE" ]; then
+            CYPRESS_ENVIRONMENT="uat-lz-cl"
+          elif [ "$ENVIRONMENT_INPUT" = "UAT" ] && [ "$LOCATION" = "MX" ]; then
+            CYPRESS_ENVIRONMENT="uat-lz-mx"
+          elif [ "$ENVIRONMENT_INPUT" = "UAT" ] && [ "$LOCATION" = "AR" ]; then
+            CYPRESS_ENVIRONMENT="uat-lz-ar"
+          elif [ "$ENVIRONMENT_INPUT" = "UAT" ] && [ "$LOCATION" = "ES" ]; then
+            CYPRESS_ENVIRONMENT="uat-lz-es"
+          else
+            echo "Combinacao invalida: environment=$ENVIRONMENT_INPUT, location=$LOCATION"
+            echo "Combinacoes validas: QA+PD, UAT+BRL/CHILE/MX/AR/ES"
+            exit 1
+          fi
+
+          echo "ENVIRONMENT=$CYPRESS_ENVIRONMENT" >> "$GITHUB_ENV"
+          echo "TRIBE=${{ inputs.TRIBE }}" >> "$GITHUB_ENV"
+          echo "TAGS=${{ inputs.TAGS }}" >> "$GITHUB_ENV"
+
+      - name: Show loaded inputs
+        run: |
+          echo "Location: ${{ inputs.LOCATION }}"
+          echo "Environment: ${{ inputs.ENVIRONMENT }}"
+          echo "Tribe: $TRIBE"
+          echo "ENVIRONMENT key: $ENVIRONMENT"
+          echo "Tags: $TAGS"
+
+      - name: Acceptance Test
+        run: |
+          set -o pipefail
+          if [ -n "$TAGS" ]; then
+            npm run cy:run -- --env TAGS="$TAGS" 2>&1 | tee test-output.txt
+          else
+            npm run cy:run 2>&1 | tee test-output.txt
+          fi
+
+      - name: Consolidar contagem de testes
+        if: always()
+        shell: bash
+        run: |
+          get_metric_from_box() {
+            local label="$1"
+            local value
+            value=$(grep -Eo "│ ${label}:[[:space:]]+[0-9]+" test-output.txt | tail -1 | grep -Eo "[0-9]+" || true)
+            echo "${value}"
+          }
+
+          passing=$(get_metric_from_box "Passing")
+          failing=$(get_metric_from_box "Failing")
+          pending=$(get_metric_from_box "Pending")
+          skipped=$(get_metric_from_box "Skipped")
+          tests=$(get_metric_from_box "Tests")
+
+          # Fallback para execucoes interrompidas antes do sumario final.
+          if [ -z "$passing" ]; then
+            passing=$(grep -Ec '^\s*√\s' test-output.txt || true)
+          fi
+          if [ -z "$failing" ]; then
+            failing=$(grep -Ec '^\s*[0-9]+\)\s' test-output.txt || true)
+          fi
+          if [ -z "$pending" ]; then
+            pending=0
+          fi
+          if [ -z "$skipped" ]; then
+            skipped=0
+          fi
+          if [ -z "$tests" ]; then
+            tests=$((passing + failing + pending + skipped))
+          fi
+
+          if grep -q "ECONNRESET" test-output.txt; then
+            run_note="Execucao interrompida por erro de conexao (ECONNRESET)."
+          else
+            run_note="Execucao concluida sem erro de conexao."
+          fi
+
+          {
+            echo '# Automated Test Summary'
+            echo ''
+            echo '| Metrica | Valor |'
+            echo '|---|---:|'
+            echo "| Tests | ${tests} |"
+            echo "| Passing | ${passing} |"
+            echo "| Failing | ${failing} |"
+            echo "| Pending | ${pending} |"
+            echo "| Skipped | ${skipped} |"
+            echo ''
+            echo "- ${run_note}"
+          } >> "$GITHUB_STEP_SUMMARY"
